@@ -1,0 +1,41 @@
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const http = require('http');
+const userRoutes = require('./routes/user');
+const adminRoutes = require('./routes/admin');
+
+const db = require('./config/connection');
+
+db();
+
+const app = express();
+const server = http.createServer(app);
+
+// Middleware setup
+app.use(cookieParser());
+app.use(express.json());
+
+// CORS setup
+app.use(cors({
+  origin: 'http://localhost:4200', // Allow the frontend origin
+  methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'], // Allow methods
+  credentials: true // Allow cookies to be sent
+}));
+
+// Routes
+app.use("/", userRoutes);
+app.use("/admin", adminRoutes);
+
+// Session setup
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Start server
+server.listen(5000, () => {
+  console.log("App is listening on port 5000");
+});
