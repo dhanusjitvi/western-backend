@@ -5,6 +5,7 @@ const session = require('express-session');
 const http = require('http');
 const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
+const categoryRoutes = require('./routes/category')
 
 const db = require('./config/connection');
 
@@ -20,13 +21,17 @@ app.use(express.json());
 // CORS setup
 app.use(cors({
   origin: 'http://localhost:4200', // Allow the frontend origin
-  methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'], // Allow methods
+  methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT','PATCH'], // Allow methods
   credentials: true // Allow cookies to be sent
 }));
 
 // Routes
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
+app.use("/category", categoryRoutes)
+
+
+app.use('/uploads', express.static('uploads'));
 
 // Session setup
 app.use(session({
