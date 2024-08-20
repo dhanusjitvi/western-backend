@@ -1,18 +1,20 @@
-// controllers/productcontroller.js
 const mongoose = require('mongoose');
-const productModal = require('../models/product'); // Adjust path as needed
+const Product = require('../models/product'); // Adjust path as needed
 
 const productAdding = async (req, res) => {
   try {
-    const { productName, quantity, description, categoryId, sizes } = req.body;
+    console.log(req.body);  // Print out the form fields
+    console.log(req.files); // Print out the uploaded files
+
+    const { productName, quantity, productDescription, categoryId, size, productRate } = req.body;
     const images = req.files; // Access the uploaded files
 
     // Validate inputs
-    if (!productName || !quantity || !description || !categoryId) {
+    if (!productName || !quantity || !productDescription || !categoryId || !productRate) {
       return res.status(400).json({ message: "Missing required fields" });
     }
     
-    if (!Array.isArray(sizes) || sizes.length === 0) {
+    if (!Array.isArray(size) || size.length === 0) {
       return res.status(400).json({ message: "Invalid sizes" });
     }
 
@@ -23,12 +25,13 @@ const productAdding = async (req, res) => {
     }));
     
     // Create a new product
-    const newProduct = new productModal({
+    const newProduct = new Product({
       productName,
       quantity,
-      description,
+      productDescription,
+      productRate,
       categoryId: new mongoose.Types.ObjectId(categoryId), // Ensure categoryId is a valid ObjectId
-      sizes: sizes || [], // Sizes can be an array or a single value, adjust as needed
+      size, // Sizes should be an array
       images: imageData,
     });
 
@@ -42,7 +45,7 @@ const productAdding = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "An error occurred" });
   }
-}
+};
 
 module.exports = {
   productAdding

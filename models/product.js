@@ -1,36 +1,35 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
-const productSchema = mongoose.Schema(
+
+const productSchema = new Schema(
   {
     categoryId: {
       type: ObjectId,
       ref: 'Category',
+      required: true,
     },
     productName: {
       type: String,
-      require: true,
+      required: true,
     },
-
-    productSize: {
-        type: String,
-        require: true,
-      },
- 
     productRate: {
       type: Number,
-      require: true,
+      required: true,
     },
-    Productdescription: {
+    productDescription: {
       type: String,
-      require: true,
+      required: true,
     },
-
+    size: {
+      type: [String], // Array of strings
+      required: true,
+    },
     status: {
       type: Boolean,
       default: false,
     },
-    image: [
+    images: [
       {
         public_id: {
           type: String,
@@ -48,6 +47,6 @@ const productSchema = mongoose.Schema(
   }
 );
 
-const Product = mongoose.model('Event', productSchema);
+const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;

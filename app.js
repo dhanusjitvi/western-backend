@@ -44,3 +44,7 @@ app.use(session({
 server.listen(5000, () => {
   console.log("App is listening on port 5000");
 });
+
+
+app.use(express.json({ limit: '50mb' })); // Adjust the size as needed
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
