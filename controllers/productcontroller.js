@@ -47,6 +47,24 @@ const productAdding = async (req, res) => {
   }
 };
 
+
+
+const getProducts = async (req, res) => {
+  try {
+    // Fetch all products from the database
+    const products = await Product.find();
+
+    // Send the products as a response
+    res.json(products);
+  } catch (error) {
+    // Handle error
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while fetching products" });
+  }
+};
+
+
 module.exports = {
-  productAdding
+  productAdding,
+  getProducts
 };

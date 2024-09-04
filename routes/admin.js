@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken')
 
 const User = require('../models/user')
 
-const upload = require('../middleware/multer')
+const uploadImages = require('../config/cloudinary')
 
 const router = Router()
 
@@ -18,6 +18,6 @@ const productcontroller = require('../controllers/productcontroller')
 
 router.post('/admin-login',admincontroller.adminlogin)
 
-router.post('/admin-addproduct',upload,productcontroller.productAdding)
+router.post('/admin-addproduct',uploadImages,productcontroller.productAdding)
 
 module.exports = router
