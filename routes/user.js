@@ -26,6 +26,8 @@ router.get('/user',usercontroller.user);
 
 router.get('/products',productercontroller.getProducts);
 
+router.post('/ordering',usercontroller.order)
+
 
 
 module.exports = router

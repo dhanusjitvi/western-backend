@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Admin = require("../models/admin");
-
+const Order = require('../models/order-list');
 const sendVerifyEmail = require("../service/nodemailer");
 
 let storeotp;
@@ -440,6 +440,36 @@ const booking = async (req, res, next) => {
   }
 };
 
+
+const order = async (req, res, next) => {
+
+  try {
+    const { product, selectedAddress, selectedShippingMethod, selectedPaymentMethod, userDetails } = req.body;
+
+    // Validate that required fields are provided
+    if (!product || !selectedAddress || !selectedShippingMethod || !selectedPaymentMethod || !userDetails) {
+      return res.status(400).json({ success: false, message: 'All required fields must be provided' });
+    }
+
+    // Create a new order document
+    const newOrder = new Order({
+      product,
+      selectedAddress,
+      selectedShippingMethod,
+      selectedPaymentMethod,
+      userDetails
+    });
+
+    // Save the new order to the database
+    const savedOrder = await newOrder.save();
+
+    // Send a response with the saved order
+    res.status(201).json({ success: true, order: savedOrder });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   user,
@@ -456,4 +486,5 @@ module.exports = {
   emailentering,
   newpassword,
   addAddress,
+  order,
 };
