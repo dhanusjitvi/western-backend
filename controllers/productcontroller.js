@@ -6,11 +6,11 @@ const productAdding = async (req, res) => {
     console.log(req.body);  // Print out the form fields
     console.log(req.files); // Print out the uploaded files
 
-    const { productName, quantity, productDescription, categoryId, size, productRate } = req.body;
+    const { productName, quantity, productDescription, categoryId, size, productRate ,supplierproductRate} = req.body;
     const images = req.files; // Access the uploaded files
 
     // Validate inputs
-    if (!productName || !quantity || !productDescription || !categoryId || !productRate) {
+    if (!productName || !quantity || !productDescription || !categoryId || !productRate || !supplierproductRate) {
       return res.status(400).json({ message: "Missing required fields" });
     }
     
@@ -30,6 +30,7 @@ const productAdding = async (req, res) => {
       quantity,
       productDescription,
       productRate,
+      supplierproductRate,
       categoryId: new mongoose.Types.ObjectId(categoryId), // Ensure categoryId is a valid ObjectId
       size, // Sizes should be an array
       images: imageData,

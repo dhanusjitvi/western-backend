@@ -17,6 +17,18 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
+    supplierproductRate: {
+      type: Number,
+      required: true,
+    },
+    productprofitRate: {
+      type: Number,
+      required: true,
+    },
+    productinvestmentRate: {
+      type: Number,
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,

@@ -470,6 +470,24 @@ const order = async (req, res, next) => {
   }
 };
 
+const getOrdersForAdmin = async (req, res, next) => {
+  try {
+    // Fetch all orders from the database
+    const orders = await Order.find(); // Add filters if needed, e.g., for pagination or specific statuses
+
+    // Check if orders exist
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ success: false, message: 'No orders found' });
+    }
+
+    // Send the orders as a response
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 module.exports = {
   register,
   user,
@@ -487,4 +505,5 @@ module.exports = {
   newpassword,
   addAddress,
   order,
+  getOrdersForAdmin
 };
