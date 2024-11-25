@@ -23,11 +23,11 @@ const productSchema = new Schema(
     },
     productprofitRate: {
       type: Number,
-      required: true,
+      
     },
     productinvestmentRate: {
       type: Number,
-      required: true,
+
     },
     quantity: {
       type: Number,

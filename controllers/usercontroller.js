@@ -470,6 +470,7 @@ const order = async (req, res, next) => {
   }
 };
 
+
 const getOrdersForAdmin = async (req, res, next) => {
   try {
     // Fetch all orders from the database

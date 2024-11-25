@@ -20,4 +20,9 @@ router.post('/admin-login',admincontroller.adminlogin)
 
 router.post('/admin-addproduct',uploadImages,productcontroller.productAdding)
 
+router.get('/admin-admingetProducts',productcontroller.admingetProducts)
+
+router.delete('/admin-products-delete', productcontroller.admindeleteProduct);
+     
+
 module.exports = router
