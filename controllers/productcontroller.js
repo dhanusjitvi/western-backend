@@ -103,6 +103,8 @@ const admingetProducts = async (req, res) => {
 
 const admindeleteProduct = async (req, res) => {
   try {
+    console.log("enterr");
+    
     const { id } = req.params;
 
     // Check if the ID is a valid ObjectId

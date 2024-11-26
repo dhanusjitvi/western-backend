@@ -22,7 +22,7 @@ router.post('/admin-addproduct',uploadImages,productcontroller.productAdding)
 
 router.get('/admin-admingetProducts',productcontroller.admingetProducts)
 
-router.delete('/admin-products-delete', productcontroller.admindeleteProduct);
+router.delete('/admin-products-delete/:id', productcontroller.admindeleteProduct);
      
 
 module.exports = router
