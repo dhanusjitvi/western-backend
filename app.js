@@ -20,7 +20,8 @@ app.use(express.json());
 
 // CORS setup
 app.use(cors({
-  origin: 'https://western19.netlify.app', // Allow the frontend origin
+  // origin: 'https://western19.netlify.app', // Allow the frontend origin
+  origin: 'http://localhost:4200',
   methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT','PATCH','DELETE'], // Allow methods
   credentials: true // Allow cookies to be sent
 }));

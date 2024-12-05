@@ -5,11 +5,18 @@ const categorySchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  Status: {
-    type: Boolean,
-    required: true,
-    default: false,
-  }
+  images: [
+    {
+      public_id: {
+        type: String,
+        required: true,
+      },
+      url: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("Category", categorySchema);
