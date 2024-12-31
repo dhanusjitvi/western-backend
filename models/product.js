@@ -23,11 +23,9 @@ const productSchema = new Schema(
     },
     productprofitRate: {
       type: Number,
-      
     },
     productinvestmentRate: {
       type: Number,
-
     },
     quantity: {
       type: Number,
@@ -37,8 +35,13 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    size: {
-      type: [String], // Array of strings
+    sizes: {
+      type: Map, // A map to store size-specific quantities
+      of: Number, // Value is a number (quantity for each size)
+      required: true,
+    },
+    colors: {
+      type: [String], // Array of hex color codes
       required: true,
     },
     status: {
