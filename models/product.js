@@ -36,12 +36,20 @@ const productSchema = new Schema(
       required: true,
     },
     sizes: {
-      type: Map, // A map to store size-specific quantities
-      of: Number, // Value is a number (quantity for each size)
-      required: true,
-    },
-    colors: {
-      type: [String], // Array of hex color codes
+      type: Map, // Map to store size-specific details
+      of: new Schema(
+        {
+          quantity: {
+            type: Number,
+            required: true,
+          },
+          color: {
+            type: [String], // Array of colors for the size
+            required: true,
+          },
+        },
+        { _id: false } // Disable _id generation for subdocuments
+      ),
       required: true,
     },
     status: {

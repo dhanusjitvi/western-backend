@@ -8,39 +8,68 @@ const productAdding = async (req, res) => {
     console.log("Request Body:", req.body);
     console.log("Uploaded Files:", req.files);
 
-    const { productName, quantity, productDescription, categoryId, productRate, supplierproductRate } = req.body;
+    const {
+      productName,
+      quantity,
+      productDescription,
+      categoryId,
+      productRate,
+      supplierproductRate,
+      sizes,  // This is where the sizes object is coming in.
+    } = req.body;
 
     // Validate required fields
-    if (!productName || !quantity || !productDescription || !categoryId || !productRate || !supplierproductRate) {
+    if (!productName || !quantity || !productDescription || !categoryId || !productRate || !supplierproductRate || !sizes) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Parse and validate `sizes`
-    const sizes = new Map(); // Initialize a Map for sizes
-    if (req.body.sizes && typeof req.body.sizes === 'object') {
-      Object.keys(req.body.sizes).forEach((size) => {
-        sizes.set(size, parseInt(req.body.sizes[size], 10)); // Convert size quantities to numbers
+    // Validate ObjectId for categoryId
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      return res.status(400).json({ message: "Invalid categoryId format" });
+    }
+
+    // Parse and validate sizes
+    let parsedSizes = {};
+    try {
+      // Loop over all sizes and parse the value of each size (stringified JSON)
+      for (const [size, sizeDetails] of Object.entries(sizes)) {
+        // Parse the stringified size details (e.g., '{"quantity":50,"color":["#FFFF99","#ACFFAC"]}')
+        let parsedSizeDetails = JSON.parse(sizeDetails);
+
+        // Validate the format of parsed size details
+        if (
+          typeof parsedSizeDetails !== 'object' ||
+          typeof parsedSizeDetails.quantity !== 'number' ||
+          !Array.isArray(parsedSizeDetails.color) ||
+          parsedSizeDetails.color.some((color) => typeof color !== 'string')
+        ) {
+          throw new Error(`Invalid format for size '${size}': Must include 'quantity' (number) and 'color' (array of strings)`);
+        }
+
+        // Store the parsed size details into the parsedSizes object
+        parsedSizes[size] = parsedSizeDetails;
+      }
+    } catch (error) {
+      return res.status(400).json({
+        message: "Invalid sizes format. Must be an object with quantity and color arrays.",
+        details: error.message,
       });
-    } else {
-      return res.status(400).json({ message: "Invalid sizes format" });
     }
 
-    // Parse and validate `colors`
-    const colors = req.body.colors && Array.isArray(req.body.colors) ? req.body.colors : [];
-    if (colors.length === 0) {
-      return res.status(400).json({ message: "Invalid colors format" });
+    // Validate and process images
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No images uploaded" });
     }
 
-    // Calculate `productinvestmentRate`
-    const productinvestmentRate = parseFloat(productRate) * parseInt(quantity, 10);
-
-    // Process image data
     const images = req.files.map((file) => ({
       public_id: file.filename,
       url: file.path,
     }));
 
-    // Create a new product
+    // Calculate product investment rate
+    const productinvestmentRate = parseFloat(supplierproductRate) * parseInt(quantity, 10);
+
+    // Create new product object
     const newProduct = new Product({
       productName,
       quantity: parseInt(quantity, 10),
@@ -49,20 +78,20 @@ const productAdding = async (req, res) => {
       supplierproductRate: parseFloat(supplierproductRate),
       productinvestmentRate,
       categoryId: new mongoose.Types.ObjectId(categoryId),
-      sizes: Object.fromEntries(sizes), // Convert Map to Object before saving
-      colors,
+      sizes: parsedSizes, // Save the parsed sizes
       images,
     });
 
-    // Save the product to the database
+    // Save product to the database
     const savedProduct = await newProduct.save();
 
-    res.json({ message: "Product added successfully", productId: savedProduct._id });
+    res.status(201).json({ message: "Product added successfully", productId: savedProduct._id });
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(500).json({ message: "An error occurred while adding the product" });
   }
 };
+
 
 
 
