@@ -30,11 +30,11 @@ router.post('/addToWishlist', productercontroller.addToWishlist);
 
 router.post('/removeWishlist', productercontroller.removeFromWishlist);
 
-router.post('/addCart', productercontroller.addToCart);
+router.post('/addCart', usercontroller.addtoCart);
 
-router.post('/removeFromCart', productercontroller.removeFromCart);
+router.delete('/removeFromCart/:userId/:productId', productercontroller.removeFromCart);
 
-router.post('/update-quantity', productercontroller.updateCartQuantity);
+router.put('/cart/:userId/item/:itemId', productercontroller.updateCartQuantity);
 
 router.get('/user',usercontroller.user);
 
@@ -42,7 +42,8 @@ router.get('/products',productercontroller.getProducts);
 
 router.get('/:userId', productercontroller.getUserWishlist);
 
-router.get('/:userId', productercontroller.getCartItems);
+router.get('/cart/:userId', productercontroller.getCartItems);
+
 
 
 module.exports = router

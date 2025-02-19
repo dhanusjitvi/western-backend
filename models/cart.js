@@ -8,22 +8,14 @@ const cartSchema = new mongoose.Schema({
   },
   items: [
     {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-        required: true,
-      },
-      quantity: {
-        type: Number,
-        required: true,
-        min: 1,
-      },
-      selectedOptions: {
-        type: Map,
-        of: String, // Example: { size: 'M', color: 'red' }
-      },
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+      productName: { type: String, required: true },
+      size: { type: String, required: true },
+      color: { type: String, required: true },
+      quantity: { type: Number, required: true }
     },
   ],
+
   updatedAt: {
     type: Date,
     default: Date.now,

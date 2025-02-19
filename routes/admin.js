@@ -16,11 +16,15 @@ const admincontroller = require('../controllers/admincontroller')
 
 const productcontroller = require('../controllers/productcontroller')
 
+const usercontroller = require('../controllers/usercontroller')
+
 router.post('/admin-login',admincontroller.adminlogin)
 
 router.post('/admin-addproduct',uploadImages,productcontroller.productAdding)
 
 router.get('/admin-admingetProducts',productcontroller.admingetProducts)
+
+router.get('/admin-OrdersForAdmin',usercontroller.getOrdersForAdmin)
 
 router.delete('/admin-products-delete/:id', productcontroller.admindeleteProduct);
 

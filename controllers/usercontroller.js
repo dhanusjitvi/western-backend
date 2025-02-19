@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const Admin = require("../models/admin");
 const Order = require('../models/order-list');
+const Cart = require('../models/cart');
+const Product = require('../models/product');
 const sendVerifyEmail = require("../service/nodemailer");
 
 let storeotp;
@@ -441,14 +443,22 @@ const booking = async (req, res, next) => {
 };
 
 
-const order = async (req, res, next) => {
 
+
+
+const order = async (req, res, next) => {
   try {
-    const { product, selectedAddress, selectedShippingMethod, selectedPaymentMethod, userDetails } = req.body;
+    const {
+      product,
+      selectedAddress,
+      selectedShippingMethod,
+      selectedPaymentMethod,
+      userDetails
+    } = req.body;
 
     // Validate that required fields are provided
     if (!product || !selectedAddress || !selectedShippingMethod || !selectedPaymentMethod || !userDetails) {
-      return res.status(400).json({ success: false, message: 'All required fields must be provided' });
+      return res.status(400).json({ success: false, message: "All required fields must be provided" });
     }
 
     // Create a new order document
@@ -457,7 +467,9 @@ const order = async (req, res, next) => {
       selectedAddress,
       selectedShippingMethod,
       selectedPaymentMethod,
-      userDetails
+      userDetails,
+      // You can optionally set orderStatus here if you want to override the default value:
+      // orderStatus: "Processing" 
     });
 
     // Save the new order to the database
@@ -473,20 +485,157 @@ const order = async (req, res, next) => {
 
 const getOrdersForAdmin = async (req, res, next) => {
   try {
-    // Fetch all orders from the database
-    const orders = await Order.find(); // Add filters if needed, e.g., for pagination or specific statuses
+    // Get pagination parameters from query (defaults to page 1 and limit 10)
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Calculate the number of orders to skip based on the page and limit
+    const skip = (page - 1) * limit;
+
+    // Fetch orders with pagination
+    const orders = await Order.find()
+      .skip(skip)  // Skip the orders for the current page
+      .limit(limit); // Limit the number of orders
+
+    // Count the total number of orders
+    const totalOrders = await Order.countDocuments();
+
+    // Calculate the total number of pages
+    const totalPages = Math.ceil(totalOrders / limit);
 
     // Check if orders exist
     if (!orders || orders.length === 0) {
       return res.status(404).json({ success: false, message: 'No orders found' });
     }
 
-    // Send the orders as a response
-    res.status(200).json({ success: true, orders });
+    // Send the orders and pagination info as a response
+    res.status(200).json({
+      success: true,
+      orders,
+      pagination: {
+        totalOrders,
+        totalPages,
+        currentPage: page,
+        perPage: limit,
+      },
+    });
   } catch (error) {
     next(error);
   }
 };
+
+
+
+const addtoCart = async (req, res, next) => {
+  console.log(req.body);
+  
+  const { productId, size, color, quantity, userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  try {
+    // Find the product by its ID
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Ensure price is available
+
+    // Find the cart for the user or create a new one
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [], totalPrice: 0 });
+    }
+
+    // Check if the item already exists in the cart
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId && item.size === size && item.color === color
+    );
+
+    if (existingItemIndex > -1) {
+      // If the item exists, update the quantity
+      cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      // If the item doesn't exist, add it to the cart
+      cart.items.push({
+        productId,
+        productName: product.productName,
+        size,
+        color,
+   
+        quantity
+      });
+    }
+
+    // Recalculate total price
+    cart.totalPrice = cart.items.reduce((total, item) => total + (item.quantity * item.price), 0);
+
+    // Save the cart
+    await cart.save();
+
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+
+
+
+const getCartItems = async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+  try {
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+const removeCartItem = async (req, res) => {
+  const { userId, itemId } = req.body;
+
+  if (!userId || !itemId) {
+    return res.status(400).json({ message: 'User ID and item ID are required' });
+  }
+
+  try {
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    cart.items = cart.items.filter((item) => item._id.toString() !== itemId);
+
+    cart.totalPrice = cart.items.reduce(
+      (total, item) => total + item.quantity * item.price,
+      0
+    );
+
+    await cart.save();
+    res.status(200).json(cart);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 
 
 module.exports = {
@@ -506,5 +655,8 @@ module.exports = {
   newpassword,
   addAddress,
   order,
-  getOrdersForAdmin
+  getOrdersForAdmin,
+  addtoCart,
+  getCartItems,
+  removeCartItem
 };

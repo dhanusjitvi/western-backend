@@ -23,6 +23,10 @@ const orderSchema = new mongoose.Schema(
         type: [String],
         required: true
       },
+      selectedColor: {  
+        type: String,
+        required: true
+      },
       productRate: {
         type: Number,
         required: true
@@ -70,6 +74,11 @@ const orderSchema = new mongoose.Schema(
         type: Number,
         required: true
       }
+    },
+    orderStatus: {
+      type: String,
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending"
     }
   },
   {

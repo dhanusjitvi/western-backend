@@ -367,7 +367,9 @@ const getCartItems = async (req, res) => {
 // Remove from Cart
 const removeFromCart = async (req, res) => {
   try {
-    const { userId, productId } = req.body;
+    console.log(req.params);
+    
+    const { userId, productId } = req.params; // Getting from URL
 
     const cart = await Cart.findOne({ userId });
 
@@ -375,8 +377,9 @@ const removeFromCart = async (req, res) => {
       return res.status(404).json({ message: 'Cart not found.' });
     }
 
+    // Convert `productId` to ObjectId before filtering
     cart.items = cart.items.filter(
-      (item) => item.productId.toString() !== productId
+      (item) => item.productId.toString() !== new mongoose.Types.ObjectId(productId).toString()
     );
 
     cart.updatedAt = Date.now();
@@ -389,10 +392,15 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+
 // Update Cart Item Quantity
 const updateCartQuantity = async (req, res) => {
   try {
-    const { userId, productId, quantity } = req.body;
+    console.log(req.params , req.body );
+    
+    const { userId, itemId } = req.params;
+    const { quantity } = req.body;
+
 
     const cart = await Cart.findOne({ userId });
 
@@ -400,30 +408,20 @@ const updateCartQuantity = async (req, res) => {
       return res.status(404).json({ message: 'Cart not found.' });
     }
 
-    const item = cart.items.find(
-      (item) => item.productId.toString() === productId
-    );
-
+    // Find the item in the cart
+    const item = cart.items.find((item) => item._id.toString() === itemId);
     if (!item) {
-      return res.status(404).json({ message: 'Product not found in cart.' });
+      return res.status(404).json({ message: 'Item not found in cart.' });
     }
 
-    if (quantity <= 0) {
-      cart.items = cart.items.filter(
-        (item) => item.productId.toString() !== productId
-      );
-    } else {
-      item.quantity = quantity;
-    }
-
-    cart.updatedAt = Date.now();
+    item.quantity = quantity; // Update quantity
     await cart.save();
 
-    res.status(200).json({ message: 'Cart updated.', cart });
+    res.status(200).json({ message: 'Cart item updated successfully.', cart });
   } catch (error) {
-    console.error('Error updating cart quantity:', error);
-    res.status(500).json({ message: 'Failed to update cart quantity.' });
-  }
+    console.error('Error updating cart item:', error);
+    res.status(500).json({ message: 'Failed to update cart item.' });
+  } 
 };
 
 
